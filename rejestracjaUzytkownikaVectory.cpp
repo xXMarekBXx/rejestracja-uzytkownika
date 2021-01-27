@@ -16,6 +16,53 @@ struct Uzytkownik
 	string login, haslo;
 };
 
+vector<Uzytkownik> odczytUzytkownikowZPliku(vector <Uzytkownik> uzytkownicy) {
+		
+	cout << "Wczytano dane z pliku" << endl;
+
+	string linia;
+	int numerLinii = 1;
+	fstream plik;
+	Uzytkownik uzytkownik;
+	
+	plik.open("uzytkownicy", ios::in);
+	
+
+	if (plik.is_open()) {
+		while (getline(plik, linia)) {
+			string Uzytkownik[3];
+			int dlugoscLinii = linia.length();
+			int beginOfWord = 0;
+			int lengthOfWord = 0;
+			int numerUzytkownika = 0;
+
+			for (int i = 0; i < dlugoscLinii; i++) {
+
+				if ((int)linia[i] == 124) {
+					lengthOfWord = i - beginOfWord;
+					Uzytkownik[numerUzytkownika] = linia.substr(beginOfWord, lengthOfWord);
+					beginOfWord = i + 1;
+					numerUzytkownika++;
+				}
+			}
+			uzytkownik.idUzytkownika = atoi(Uzytkownik[0].c_str());
+			uzytkownik.login = Uzytkownik[1];
+			uzytkownik.haslo = Uzytkownik[2];
+			
+			uzytkownicy.push_back(uzytkownik);
+		}
+		plik.close();
+		
+		return uzytkownicy;
+	}
+	else {
+		plik.close();
+		return uzytkownicy;
+	}
+	
+	system("pause");
+}
+
 vector <Uzytkownik> rejestracja(vector <Uzytkownik> uzytkownicy)
 {
 	system("cls");
@@ -72,7 +119,7 @@ vector <Uzytkownik> rejestracja(vector <Uzytkownik> uzytkownicy)
 	if (plik.good()) {
 		plik << uzytkownicy[iloscUzytkownikow].idUzytkownika << "|";
 		plik << uzytkownicy[iloscUzytkownikow].login << "|";
-		plik << uzytkownicy[iloscUzytkownikow].haslo << "|";
+		plik << uzytkownicy[iloscUzytkownikow].haslo << "|" << endl;
 		cout << endl;
 		cout << "Uzytkownik dodany" << endl;
 		cout << endl;
@@ -176,6 +223,8 @@ vector <Uzytkownik> zmianaHasla(vector <Uzytkownik> uzytkownicy, int idZalogowan
 int main()
 {	
 	vector <Uzytkownik> uzytkownicy;
+
+	uzytkownicy = odczytUzytkownikowZPliku(uzytkownicy);
 
 	int idZalogowanegoUzytkownika = 0;
 	int iloscUzytkownikow = 0;
