@@ -25,7 +25,7 @@ vector<Uzytkownik> odczytUzytkownikowZPliku(vector <Uzytkownik> uzytkownicy) {
 	fstream plik;
 	Uzytkownik uzytkownik;
 	
-	plik.open("uzytkownicy", ios::in);
+	plik.open("uzytkownicy.txt", ios::in);
 	
 
 	if (plik.is_open()) {
@@ -197,8 +197,52 @@ int logowanie(vector <Uzytkownik> uzytkownicy)
 	return 0;	
 }
 
+vector<Uzytkownik> usuwanieUzytkownika(vector <Uzytkownik> uzytkownicy, int idZalogowanegoUzytkownika) {
+	
+	string wyborUrzytkownika;
+	fstream plik;
+
+	plik.open("temp.txt", ios::out);
+	if (plik.good()) {
+
+		for (int i = 0; i < uzytkownicy.size(); i++) {
+			if (idZalogowanegoUzytkownika == uzytkownicy[i].idUzytkownika) {
+				continue;
+			}
+			else {
+				plik << uzytkownicy[i].idUzytkownika << "|";
+				plik << uzytkownicy[i].login << "|";
+				plik << uzytkownicy[i].haslo << "|" << endl;					
+			}
+		}
+
+		plik.close();
+
+		remove("uzytkownicy.txt");
+		rename("temp.txt", "uzytkownicy.txt");
+
+		int numerZnajomegoDoUsuniecia = 0;
+		for (int i = 0; i < uzytkownicy.size(); i++) {
+			if (uzytkownicy[i].idUzytkownika == idZalogowanegoUzytkownika) {
+				numerZnajomegoDoUsuniecia = i;
+			}
+		}
+		uzytkownicy.erase(uzytkownicy.begin() + numerZnajomegoDoUsuniecia);
+						
+		return uzytkownicy;
+	}else {
+		plik.close();
+		cout << "Blad odczytu pliku!" << endl;
+		cout << endl;
+		system("Pause");
+		return uzytkownicy;
+	}
+}
+
 vector <Uzytkownik> zmianaHasla(vector <Uzytkownik> uzytkownicy, int idZalogowanegoUzytkownika)
 {
+	Uzytkownik uzytkownikZNowymHaslem;
+
 	int indexDoEdycji;
 	string noweHaslo;
 	cout << endl;
@@ -211,14 +255,32 @@ vector <Uzytkownik> zmianaHasla(vector <Uzytkownik> uzytkownicy, int idZalogowan
 		}
 	}
 	uzytkownicy[indexDoEdycji].haslo = noweHaslo;
+
+	usuwanieUzytkownika(uzytkownicy, idZalogowanegoUzytkownika);
+	
+	fstream plik;
+
+	plik.open("uzytkownicy.txt", ios::out | ios::app);
+	if (plik.good()) {
+		plik << uzytkownicy[indexDoEdycji].idUzytkownika << "|";
+		plik << uzytkownicy[indexDoEdycji].login << "|";
+		plik << uzytkownicy[indexDoEdycji].haslo << "|" << endl;		
+		return uzytkownicy;
+	}
+	else {
+		cout << "Nie udalo sie otworzyc pliku" << endl;
+		system("Pause");
+	}
+
+	uzytkownicy.push_back(uzytkownikZNowymHaslem);
+	   
 	cout << endl;
 	cout << "Udalo sie zmienic haslo." << endl;
 	cout << endl;
 	system("Pause");
+
 	return uzytkownicy;
 }
-
-
 
 int main()
 {	
